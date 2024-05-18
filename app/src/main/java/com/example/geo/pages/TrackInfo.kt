@@ -49,7 +49,7 @@ fun TrackInfo(
                     }
                     Row {
                         Text(
-                            text = String.format("Расстояние: %.2f км", track.distance),
+                            text = String.format("Расстояние: %.2f м", track.distance),
                             fontFamily = FontFamily.Monospace,
                             fontSize = 5.em,
                             modifier = modifier

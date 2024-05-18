@@ -16,7 +16,6 @@ import java.time.LocalTime
 data class TrackEntity (
     @PrimaryKey(autoGenerate = true) var id: Long,
     @ColumnInfo("name") var name: String,
-//    @ColumnInfo("start") var start: LocalTime,
     @ColumnInfo("distance") var distance: Double?,
     @ColumnInfo("duration") var duration: Long?
 )

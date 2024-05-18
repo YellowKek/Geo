@@ -3,6 +3,7 @@ package com.example.geo.pages
 import android.location.Location
 import android.os.Handler
 import android.os.Looper
+import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -23,6 +24,7 @@ import androidx.compose.runtime.mutableDoubleStateOf
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontFamily
@@ -36,6 +38,9 @@ import com.yandex.mapkit.geometry.Geometry
 import com.yandex.mapkit.geometry.Point
 import com.yandex.mapkit.geometry.Polyline
 import com.yandex.mapkit.mapview.MapView
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import java.util.concurrent.TimeUnit
 import kotlin.math.atan2
 import kotlin.math.cos
@@ -142,18 +147,20 @@ fun TimerDisplay(
     distance: Double,
 ) {
     val startTime = remember { mutableLongStateOf(System.nanoTime()) }
-    val handler = remember { Handler(Looper.getMainLooper()) }
+    val coroutineScope = rememberCoroutineScope()
 
     LaunchedEffect(key1 = Unit) {
-        val updateTimerRunnable = object : Runnable {
-            override fun run() {
+        coroutineScope.launch {
+            while (true) {
                 val elapsedTime = System.nanoTime() - startTime.longValue
                 elapsedSeconds.longValue = TimeUnit.NANOSECONDS.toSeconds(elapsedTime)
-                handler.postDelayed(this, 1000)
+                delay(1000)
+                Log.d("debug", elapsedSeconds.longValue.toString())
             }
         }
-        handler.postDelayed(updateTimerRunnable, 1000)
+        delay(1000)
     }
+
     Column(modifier = modifier) {
         Row {
             Text(
@@ -167,7 +174,7 @@ fun TimerDisplay(
         }
         Row {
             Text(
-                text = String.format("Расстояние: %.2f км", distance),
+                text = String.format("Расстояние: %.2f м", distance),
                 fontFamily = FontFamily.Monospace,
                 fontSize = 5.em,
                 modifier = modifier
@@ -274,20 +281,25 @@ fun calcTrackDistance(coordinates: List<Location>): Double {
 
     var totalDistance = 0.0
     for (i in 1 until coordinates.size) {
-        val lat1 = Math.toRadians(coordinates[i - 1].latitude)
-        val lat2 = Math.toRadians(coordinates[i].latitude)
-        val lon1 = Math.toRadians(coordinates[i - 1].longitude)
-        val lon2 = Math.toRadians(coordinates[i].longitude)
 
-        val dLat = lat2 - lat1
-        val dLon = lon2 - lon1
+//        val lat1 = Math.toRadians(coordinates[i - 1].latitude)
+//        val lat2 = Math.toRadians(coordinates[i].latitude)
+//        val lon1 = Math.toRadians(coordinates[i - 1].longitude)
+//        val lon2 = Math.toRadians(coordinates[i].longitude)
+//
+//        val dLat = lat2 - lat1
+//        val dLon = lon2 - lon1
 
-        val a = sin(dLat / 2).pow(2.0) + cos(lat1) * cos(lat2) * sin(dLon / 2).pow(2.0)
-        val c = 2 * atan2(sqrt(a), sqrt(1 - a))
+        // Location
 
-        val earthRadius = 6371.0
-        val distance = earthRadius * c
 
+//        val a = sin(dLat / 2).pow(2.0) + cos(lat1) * cos(lat2) * sin(dLon / 2).pow(2.0)
+//        val c = 2 * atan2(sqrt(a), sqrt(1 - a))
+//
+//        val earthRadius = 6371.0
+//        val distance = earthRadius * c
+
+        var distance = coordinates[i - 1].distanceTo(coordinates[i])
         totalDistance += distance
     }
 
